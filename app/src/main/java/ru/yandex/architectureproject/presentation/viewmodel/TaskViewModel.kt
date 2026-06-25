@@ -35,7 +35,22 @@ class TaskViewModel(
     }
 
     fun reduce(action: TaskAction) {
-        // TODO: Здесь должна быть обработка действий
+        viewModelScope.launch {
+            when (action) {
+                TaskAction.LoadTasks -> loadTasks()
+                is TaskAction.AddTask -> addTaskUseCase(action.task)
+
+                is TaskAction.UpdateTaskStatus -> {
+                    if (action.isDone) {
+                        completeTaskUseCase(action.taskId)
+                    } else {
+                        incompleteTaskUseCase(action.taskId)
+                    }
+                }
+
+                is TaskAction.DeleteTask -> deleteTaskUseCase(action.taskId)
+            }
+        }
     }
 
     private suspend fun loadTasks() {
